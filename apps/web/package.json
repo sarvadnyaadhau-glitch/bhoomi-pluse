@@ -1,0 +1,9 @@
+{
+  "name": "@sensotech/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {"dev": "vite", "build": "vite build", "typecheck": "tsc -p tsconfig.json --noEmit", "lint": "tsc -p tsconfig.json --noEmit"},
+  "dependencies": {"@sensotech/types": "workspace:*", "@vitejs/plugin-react": "latest", "vite": "latest", "typescript": "^5.9.2", "react": "latest", "react-dom": "latest"},
+  "devDependencies": {}
+}
