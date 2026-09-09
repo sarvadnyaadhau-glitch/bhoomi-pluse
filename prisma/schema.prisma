@@ -1,0 +1,112 @@
+// SENSOTECH — Prisma Schema (Phase 1: Core Models)
+// Additional models will be added in later phases per MASTER_PRODUCT_SPEC.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Auth & Users ──
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  language  String   @default("en") // en | hi | mr
+  role      Role     @default(FARMER)
+  farms     Farm[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  FARMER
+  PROVIDER
+  BUYER
+  EXPERT
+  ADMIN
+}
+
+// ── Farms & Fields ──
+
+model Farm {
+  id        String      @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     User        @relation(fields: [ownerId], references: [id])
+  location  String?
+  latitude  Float?
+  longitude Float?
+  areaAcres Float?
+  fields    Field[]
+  events    FarmEvent[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Field {
+  id          String       @id @default(cuid())
+  farmId      String
+  farm        Farm         @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  name        String
+  areaAcres   Float?
+  soilType    String?
+  cropSeasons CropSeason[]
+  sensors     SensorDevice[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model CropSeason {
+  id         String   @id @default(cuid())
+  fieldId    String
+  field      Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  cropName   String
+  variety    String?
+  sowingDate DateTime?
+  stage      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Sensors ──
+
+model SensorDevice {
+  id         String          @id @default(cuid())
+  fieldId    String
+  field      Field           @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  name       String
+  status     String          @default("offline") // online | offline | error
+  lastSeenAt DateTime?
+  readings   SensorReading[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model SensorReading {
+  id        String      @id @default(cuid())
+  deviceId  String
+  device    SensorDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  parameter String // N | P | K | pH | EC | moisture | soil_temp | air_temp | humidity
+  value     Float
+  unit      String
+  quality   String      @default("good") // good | suspect | bad
+  timestamp DateTime    @default(now())
+}
+
+// ── Farm Memory ──
+
+model FarmEvent {
+  id        String   @id @default(cuid())
+  farmId    String
+  farm      Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  type      String // sowing | irrigation | fertilizer | pesticide | disease | harvest | sale | weather | observation
+  title     String
+  details   String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
