@@ -1,0 +1,8 @@
+{
+  "name": "@sensotech/api",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev": "tsx watch src/server.ts", "build": "tsc -p tsconfig.json", "typecheck": "tsc -p tsconfig.json --noEmit", "lint": "tsc -p tsconfig.json --noEmit"},
+  "dependencies": {"@sensotech/types": "workspace:*", "fastify": "^5.5.0"},
+  "devDependencies": {"@types/node": "^24.3.0", "tsx": "^4.20.5", "typescript": "^5.9.2"}
+}
