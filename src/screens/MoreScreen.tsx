@@ -15,7 +15,7 @@ export default function MoreScreen() {
     {
       title: 'Intelligence',
       items: [
-        { icon: Government, label: 'Government Schemes', desc: 'Eligibility, documents, deadlines', badge: 'Coming soon' },
+        { icon: Landmark, label: 'Government Schemes', desc: 'Eligibility, documents, deadlines', badge: 'Coming soon' },
         { icon: Wrench, label: 'Services Marketplace', desc: 'Tractor, drone, labour, transport', badge: 'Coming soon' },
         { icon: Wallet, label: 'Farm Economics', desc: 'Profit, ROI, break-even analysis', badge: 'Coming soon' },
         { icon: Tractor, label: 'Machinery & Labour', desc: 'Equipment, fuel, worker tracking', badge: 'Coming soon' },
