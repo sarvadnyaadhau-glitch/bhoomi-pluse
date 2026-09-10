@@ -1,0 +1,72 @@
+# SENSOTECH — Base44 Development Environment
+# Full-stack: PostgreSQL + Express API + Vite frontend
+# All app services run from cloned source with live reload.
+
+services:
+  # ── Database ──────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sensotech
+      POSTGRES_USER: sensotech
+      POSTGRES_PASSWORD: sensotech_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sensotech"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Migrations (one-shot) ──────────────────────────────
+  migrate:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - ./:/app
+    command: sh -c "npm install --silent && npx tsx src/migrate.ts"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://sensotech:sensotech_dev@db:5432/sensotech
+    restart: "no"
+
+  # ── Express API ───────────────────────────────────────
+  api:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - ./:/app
+    command: sh -c "npm install --silent && npx tsx watch src/index.ts"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      DATABASE_URL: postgres://sensotech:sensotech_dev@db:5432/sensotech
+      PORT: "3001"
+    ports:
+      - "3001:3001"
+
+  # ── Vite Frontend ──────────────────────────────────────
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "npm install --silent && npm run dev -- --host 0.0.0.0 --port 3000"
+    depends_on:
+      - api
+    environment:
+      - VITE_API_URL=http://api:3001
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
