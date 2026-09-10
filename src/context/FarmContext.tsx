@@ -62,7 +62,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       .select()
       .maybeSingle()
 
-    if (error) return { error: error.message }
+    if (error) return { error }
     if (newFarm) {
       await refresh()
       setActiveFarm(newFarm as Farm)

@@ -109,13 +109,13 @@ interface QueryState {
 
 class QueryResult {
   private state: QueryState
-  private promise: Promise<{ data: unknown; error: string | null }> | null = null
+  private promise: Promise<{ data: any; error: string | null }> | null = null
 
   constructor(state: QueryState) {
     this.state = state
   }
 
-  private async execute(): Promise<{ data: unknown; error: string | null }> {
+  private async execute(): Promise<{ data: any; error: string | null }> {
     const { table } = this.state
 
     // Unimplemented tables — return empty
@@ -159,7 +159,7 @@ class QueryResult {
     return { data, error: null }
   }
 
-  private async executeProfiles(): Promise<{ data: unknown; error: string | null }> {
+  private async executeProfiles(): Promise<{ data: any; error: string | null }> {
     // profiles.select → GET /auth/me
     const res = await apiFetch('/auth/me')
     if (!res.ok) return { data: null, error: 'Failed to fetch profile' }
@@ -168,7 +168,7 @@ class QueryResult {
   }
 
   then<R>(
-    onFulfilled: (v: { data: unknown; error: string | null }) => R | PromiseLike<R>,
+    onFulfilled: (v: { data: any; error: string | null }) => R | PromiseLike<R>,
     onRejected?: (e: unknown) => R
   ): Promise<R> {
     if (!this.promise) this.promise = this.execute()
@@ -194,12 +194,12 @@ class SelectBuilder {
   limit(n: number) { this.state.limitN = n; return this }
   maybeSingle() {
     this.state.single = true
-    return new QueryResult({ ...this.state }) as unknown as Promise<{ data: unknown; error: string | null }>
+    return new QueryResult({ ...this.state }) as unknown as Promise<{ data: any; error: string | null }>
   }
 
   // When awaited directly (no maybeSingle), return as array
   then<R>(
-    onFulfilled: (v: { data: unknown; error: string | null }) => R | PromiseLike<R>,
+    onFulfilled: (v: { data: any; error: string | null }) => R | PromiseLike<R>,
     onRejected?: (e: unknown) => R
   ): Promise<R> {
     return new QueryResult({ ...this.state }).then(onFulfilled, onRejected)
@@ -222,7 +222,7 @@ class InsertBuilder {
   select() { this.doSelect = true; return this }
   maybeSingle() { this.single = true; return this }
 
-  private async execute(): Promise<{ data: unknown; error: string | null }> {
+  private async execute(): Promise<{ data: any; error: string | null }> {
     if (UNIMPLEMENTED.has(this.table)) {
       return { data: null, error: 'This feature is not yet available' }
     }
@@ -246,7 +246,7 @@ class InsertBuilder {
   }
 
   then<R>(
-    onFulfilled: (v: { data: unknown; error: string | null }) => R | PromiseLike<R>,
+    onFulfilled: (v: { data: any; error: string | null }) => R | PromiseLike<R>,
     onRejected?: (e: unknown) => R
   ): Promise<R> {
     return this.execute().then(onFulfilled, onRejected)
@@ -266,7 +266,7 @@ class UpdateBuilder {
 
   eq(col: string, val: unknown) { this.filters[col] = val; return this }
 
-  private async execute(): Promise<{ data: unknown; error: string | null }> {
+  private async execute(): Promise<{ data: any; error: string | null }> {
     if (UNIMPLEMENTED.has(this.table)) {
       return { data: null, error: null } // silent no-op for unimplemented
     }
@@ -284,7 +284,7 @@ class UpdateBuilder {
   }
 
   then<R>(
-    onFulfilled: (v: { data: unknown; error: string | null }) => R | PromiseLike<R>,
+    onFulfilled: (v: { data: any; error: string | null }) => R | PromiseLike<R>,
     onRejected?: (e: unknown) => R
   ): Promise<R> {
     return this.execute().then(onFulfilled, onRejected)
@@ -302,7 +302,7 @@ class DeleteBuilder {
 
   eq(col: string, val: unknown) { this.filters[col] = val; return this }
 
-  private async execute(): Promise<{ data: unknown; error: string | null }> {
+  private async execute(): Promise<{ data: any; error: string | null }> {
     if (UNIMPLEMENTED.has(this.table)) {
       return { data: null, error: null }
     }
@@ -319,7 +319,7 @@ class DeleteBuilder {
   }
 
   then<R>(
-    onFulfilled: (v: { data: unknown; error: string | null }) => R | PromiseLike<R>,
+    onFulfilled: (v: { data: any; error: string | null }) => R | PromiseLike<R>,
     onRejected?: (e: unknown) => R
   ): Promise<R> {
     return this.execute().then(onFulfilled, onRejected)
@@ -420,7 +420,7 @@ const auth = {
 const storage = {
   from(_bucket: string) {
     return {
-      async upload() {
+      async upload(_path: string, _file: File | Blob | BodyInit) {
         return { data: null, error: { message: 'Storage not configured — Crop Doctor module not yet implemented' } }
       },
       getPublicUrl(path: string) {

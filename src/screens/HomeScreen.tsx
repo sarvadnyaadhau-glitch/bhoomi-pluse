@@ -47,7 +47,7 @@ export default function HomeScreen() {
     setSensors((sensorsRes.data || []) as SensorDevice[])
 
     if (sensorsRes.data && sensorsRes.data.length > 0) {
-      const deviceIds = sensorsRes.data.map((s) => s.id)
+      const deviceIds = (sensorsRes.data as SensorDevice[]).map((s) => s.id)
       const { data: reading } = await supabase
         .from('sensor_readings')
         .select('*')
@@ -62,7 +62,7 @@ export default function HomeScreen() {
 
     const { data: fields } = await supabase.from('fields').select('*').eq('farm_id', activeFarm.id)
     if (fields && fields.length > 0) {
-      const fieldIds = fields.map((f) => f.id)
+      const fieldIds = (fields as Field[]).map((f) => f.id)
       const { data: seasons } = await supabase
         .from('crop_seasons')
         .select('*')
@@ -73,7 +73,7 @@ export default function HomeScreen() {
         .maybeSingle()
 
       if (seasons) {
-        const field = fields.find((f) => f.id === seasons.field_id)
+        const field = (fields as Field[]).find((f) => f.id === seasons.field_id)
         if (field) setActiveCrop({ season: seasons as CropSeason, field: field as Field })
       } else {
         setActiveCrop(null)

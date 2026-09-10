@@ -97,7 +97,7 @@ function OverviewTab({ farm }: { farm: Farm }) {
         const { data: crops } = await supabase
           .from('crop_seasons')
           .select('*')
-          .in('field_id', fields.map((f) => f.id))
+          .in('field_id', (fields as { id: string }[]).map((f) => f.id))
           .eq('status', 'active')
         setActiveCrops((crops || []) as CropSeason[])
       }
